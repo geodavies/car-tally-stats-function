@@ -1,0 +1,24 @@
+service: stats-fun
+
+provider:
+  name: aws
+  runtime: nodejs6.10
+  stage: dev
+  region: eu-west-1
+
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "dynamodb:*"
+      Resource: "*"
+
+functions:
+  displayStats:
+    handler: handler.stats
+    memorySize: 128
+    events:
+      - http:
+          path: display-stats
+          method: get
+          cors: true
+          
