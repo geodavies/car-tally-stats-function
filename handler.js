@@ -27,7 +27,6 @@ module.exports.stats = (event, context, callback) => {
             DynamoDbDao.getCarStats('out', function (err, dataCarsOut) {
                 if (err) {
 
-
                     callback(null, {
                         statusCode: 400,
                         body: JSON.stringify({
@@ -45,8 +44,11 @@ module.exports.stats = (event, context, callback) => {
 
                     var availableSpaces = totalSpaces - carsIn + carsOut;
                     callback(null, {
-                        statusCode: 200,
-                        body: JSON.stringify({
+                        "statusCode": 200,
+                        "headers": {
+                            "Access-Control-Allow-Origin": "*"
+                        },
+                        "body": JSON.stringify({
                             count: availableSpaces
                         })
                     });
