@@ -1,4 +1,4 @@
-service: stats-fun
+service: stats-function
 
 provider:
   name: aws
@@ -21,4 +21,3 @@ functions:
           path: display-stats
           method: get
           cors: true
-          

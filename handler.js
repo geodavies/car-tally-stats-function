@@ -3,57 +3,53 @@
 const DynamoDbDao = require('./lib/dynamoDbDao');
 
 module.exports.stats = (event, context, callback) => {
-    //const bodyObject = JSON.parse(event.body);
-    var totalSpaces = 100;
-    var carsIn = 0;
-    var carsOut = 0;
-    console.log('getting stats for ');
-    DynamoDbDao.getCarStats('in', function (err, dataCarsIn) {
-        if (err) {
-            console.log('Error getting data for cars in:', err);
+    const totalSpaces = 100;
 
-            callback(null, {
-                statusCode: 400,
-                body: JSON.stringify({
-                    error: err
-                })
-            });
+    const carStatsIn = new Promise(function (resolve, reject) {
+        DynamoDbDao.getCarStats('in', function (err, data) {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(data);
+            }
+        });
+    });
 
-        } else {
-            console.log('Successfully call cars in data');
+    const carStatsOut = new Promise(function (resolve, reject) {
+        DynamoDbDao.getCarStats('out', function (err, data) {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(data);
+            }
+        });
+    });
 
-            carsIn = dataCarsIn.Items.length;
-
-            DynamoDbDao.getCarStats('out', function (err, dataCarsOut) {
-                if (err) {
-
-                    callback(null, {
-                        statusCode: 400,
-                        body: JSON.stringify({
-                            error: err
-                        })
-                    });
-                } else {
-
-
-                    carsOut = dataCarsOut.Items.length;
-
-                    console.log('totalSpaces ' + totalSpaces);
-                    console.log('carsIn ' + carsIn);
-                    console.log('carsOut ' + carsOut);
-
-                    var availableSpaces = totalSpaces - carsIn + carsOut;
-                    callback(null, {
-                        "statusCode": 200,
-                        "headers": {
-                            "Access-Control-Allow-Origin": "*"
-                        },
-                        "body": JSON.stringify({
-                            count: availableSpaces
-                        })
-                    });
-                }
-            });
-        }
+    Promise.all([
+        carStatsIn,
+        carStatsOut
+    ]).then(values => {
+        const availableSpaces = totalSpaces - values[0].Count + values[1].Count;
+        callback(null, {
+            "statusCode": 200,
+            "headers": {
+                "Access-Control-Allow-Origin": "*"
+            },
+            "body": JSON.stringify({
+                total: totalSpaces,
+                available: availableSpaces
+            })
+        });
+    }).catch(error => {
+        console.log(error);
+        callback(null, {
+            "statusCode": 500,
+            "headers": {
+                "Access-Control-Allow-Origin": "*"
+            },
+            "body": JSON.stringify({
+                error: error
+            })
+        });
     });
 };
