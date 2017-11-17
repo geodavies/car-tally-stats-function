@@ -24,7 +24,7 @@ module.exports.stats = (event, context, callback) => {
             }
         });
     });
-
+    
     Promise.all([
         carStatsIn,
         carStatsOut
