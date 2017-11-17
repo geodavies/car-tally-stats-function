@@ -49,7 +49,9 @@ module.exports.stats = (event, context, callback) => {
                             "Access-Control-Allow-Origin": "*"
                         },
                         "body": JSON.stringify({
-                            count: availableSpaces
+                            count: availableSpaces,
+                            total: totalSpaces
+
                         })
                     });
                 }
